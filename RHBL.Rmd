@@ -1,0 +1,20 @@
+---
+title: "Rhbl"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+install.packages("rbhl")
+options(bhl_key = "e5c72471-be6f-4f28-b436-a491399abec0")
+
+India <- rbhl::bhl_booksearch(title = "india")
+
+library(magrittr)
+
+
+
+
+```
+
