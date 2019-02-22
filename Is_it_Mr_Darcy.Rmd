@@ -7,7 +7,7 @@ editor_options:
 
 ```{r }
 
-#Is Mr Darcy the most repeated word Jane Austen's in the Pride and Prejudice?Lets create a word cloud and guage
+#Is Mr Darcy the most repeated word in Jane Austen's Pride and Prejudice?Lets create a word cloud and guage
 
 library(gutenbergr)
 library(tidyverse)
