@@ -1,0 +1,53 @@
+---
+title: "Geojson_on_github"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+#Usage practice of scott chamberlains' togeojson function. This helps create a interactive map that can  be hosted on github
+
+
+library(rbison)
+library(PackageMine)
+library(httr)
+
+sycamore <- bison(species = "Platanus occidentalis", count = 500)
+
+str(sycamore)
+
+#Retain only the point items from the result list
+syc_df<-(data.frame(sycamore$points))
+#Remove unwanted columns 
+del<-c("basis","common_name","geo")
+syc_df<-syc_df[,!(names(syc_df) %in% del)]
+#Rename Columns
+names(syc_df)<-c("Name","Longitude","Latitude","OccID","Provider")
+#Remove all NA rows
+syc_df<-na.omit(syc_df)
+#Rearrange column positions
+syc_df<-syc_df[,c("OccID","Name","Longitude","Latitude","Provider")]
+
+head(syc_df)
+#Write the df contents in csv format
+
+write.csv(syc_df,"Sycamore.csv")
+file<-"f:/Data/ROS-mini/Sycamore.csv"
+
+#Scott Chamberlains togeojson function
+togeojson <- function(file, writepath = "~") {
+    url <- "http://ogre.adc4gis.com/convert"
+    tt <- POST(url, body = list(upload = upload_file(file)))
+    out <- content(tt, as = "text")
+    fileConn <- file(writepath)
+    writeLines(out, fileConn)
+    close(fileConn)
+}
+
+togeojson(file,"f:/Data/ROS-mini/Sycamore.geojson")
+
+```
+
+
