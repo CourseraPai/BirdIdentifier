@@ -1,9 +1,0 @@
----
-title: "Vitae"
-output: html_document
----
-
-```{r setup, include=FALSE}
-
-
-```
