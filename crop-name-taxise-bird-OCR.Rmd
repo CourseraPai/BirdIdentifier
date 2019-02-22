@@ -1,0 +1,81 @@
+---
+title: "crop-name-taxise-OCR"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+##Usage practice of magick for image reading, tesseract for OCR and taxize::gnr_resolve for Binomial Nomenclature resolution.Idea and code borrowed from ropensci.org
+
+library("magrittr")
+library(magick)
+library(tidyverse)
+
+filenames <- fs::dir_ls("F:/Data/ROS-mini/birds")
+filenames[1]
+
+magick::image_read(filenames[1])
+
+crop_bird <- function(filename){
+  
+  image <- magick::image_read(filename)
+  height <- magick::image_info(image)$height
+  image <- magick::image_crop(image, 
+                     paste0("+0+",round(0.75*height))) %>%
+  magick::image_convert(type = "grayscale") %>%
+  magick::image_modulate(brightness = 120) %>%
+  magick::image_enhance() %>%
+  magick::image_median() %>%
+  magick::image_contrast(sharpen=1)
+    
+  return(image)
+}
+
+
+bird<-crop_bird(filenames[1])
+print(bird)
+
+get_names<-function(image){
+  ocr_options <- list(tessedit_pageseg_mode = 1)
+  text <- image_ocr(image)
+  text <- stringr::str_split(text, "\n", simplify = TRUE)
+  text <- stringr::str_remove_all(text, "[0-9]")
+  text <- stringr::str_remove_all(text, "[:punct:]")
+  text <- trimws(text)
+  text <- stringr::str_remove_all(text, "~")
+  text <- text[text != ""]
+  text <- tolower(text)
+  text <- stringr::str_remove_all(text, " *\\b[[:alpha:]]{1,2}\\b *")
+  text <- text[text != ""]
+  
+  return(text)
+
+  }
+
+(results2 <- filenames[1] %>%
+  crop_bird() %>%
+  get_names())
+
+tax<-function(results){
+res<-taxize::gnr_resolve(results,
+  best_match_only = TRUE)
+return(res)  
+}
+
+
+bird_names<-map(filenames,crop_bird)
+to_taxise<-map(bird_names,get_names)
+bird_list<-map(to_taxise,tax)
+
+for( i in 1:length(bird_list)){
+
+  res<-try(print( bird_list[[i]][3]),silent=TRUE) 
+   if(inherits(res, "try-error"))
+  {
+       next
+  }
+  
+}
+  
+```
+
